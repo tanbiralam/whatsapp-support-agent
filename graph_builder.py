@@ -34,7 +34,8 @@ async def main_assistant(state: ChatbotState, writer: StreamWriter):
         message_history=message_history,
         usage_limits=UsageLimits(request_limit=3),
     )
-    writer(result.data)
+    writer(result.output)
+
 
     return {
         "messages": [result.new_messages_json()],

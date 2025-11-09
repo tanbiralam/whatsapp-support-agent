@@ -1,3 +1,5 @@
+import sys
+
 import os
 import asyncio
 from dotenv import load_dotenv
@@ -8,6 +10,9 @@ from graph_builder import build_graph
 
 # Load environment variables before any other imports
 load_dotenv()
+
+if sys.platform.startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 async def run_local_chat(graph, user_message: str, from_number: str):
@@ -45,6 +50,7 @@ async def run_agent(user_message: str, from_number: str) -> str:
     ) as pool:
         async with pool.connection() as conn:
             memory = AsyncPostgresSaver(conn)
+            memory.supports_pipeline = False # Force the saver to fall back to plain transactions
             await memory.setup()
 
             # Build and run the graph

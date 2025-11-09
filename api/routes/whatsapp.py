@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from main import run_agent
 from fastapi.background import BackgroundTasks
-
+from fastapi.responses import PlainTextResponse
 
 load_dotenv()
 
@@ -57,6 +57,21 @@ async def process_whatsapp_message(data: dict):
     send_whatsapp_message(to=from_number, body=response)
 
 
+# @router.get("/webhook")
+# async def verify_webhook(
+#     hub_mode: str = Query(None, alias="hub.mode"),
+#     hub_verify_token: str = Query(None, alias="hub.verify_token"),
+#     hub_challenge: str = Query(None, alias="hub.challenge"),
+# ):
+#     verify_token = os.getenv("WHATSAPP_VERIFY_TOKEN")
+#     if hub_mode == "subscribe" and hub_verify_token == verify_token:
+#         return int(hub_challenge)
+#     else:
+#         raise HTTPException(status_code=403, detail="Verification failed")
+
+
+
+
 @router.get("/webhook")
 async def verify_webhook(
     hub_mode: str = Query(None, alias="hub.mode"),
@@ -65,6 +80,5 @@ async def verify_webhook(
 ):
     verify_token = os.getenv("WHATSAPP_VERIFY_TOKEN")
     if hub_mode == "subscribe" and hub_verify_token == verify_token:
-        return int(hub_challenge)
-    else:
-        raise HTTPException(status_code=403, detail="Verification failed")
+        return PlainTextResponse(hub_challenge, status_code=200)
+    raise HTTPException(status_code=403, detail="Verification failed")
